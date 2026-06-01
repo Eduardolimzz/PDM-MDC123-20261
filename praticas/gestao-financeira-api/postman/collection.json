@@ -1,0 +1,82 @@
+{
+  "info": {
+    "name": "GestÃ£o Financeira API",
+    "_postman_id": "00000000-0000-0000-0000-000000000000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health-check",
+      "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] } }
+    },
+    {
+      "name": "Listar categorias",
+      "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] } }
+    },
+    {
+      "name": "Criar categoria",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"health\",\n  \"displayName\": \"SaÃºde\",\n  \"icon\": \"favorite\",\n  \"background\": \"#FFB6B6\",\n  \"isIncome\": false\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/categories", "host": ["{{baseUrl}}"], "path": ["categories"] }
+      }
+    },
+    {
+      "name": "Atualizar categoria",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"displayName\": \"SaÃºde e Bem-estar\"\n}" },
+        "url": { "raw": "{{baseUrl}}/categories/:id", "host": ["{{baseUrl}}"], "path": ["categories", ":id"] }
+      }
+    },
+    {
+      "name": "Excluir categoria",
+      "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/categories/:id", "host": ["{{baseUrl}}"], "path": ["categories", ":id"] } }
+    },
+    {
+      "name": "Criar transaÃ§Ã£o",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"SalÃ¡rio de outubro\",\n  \"value\": 3500.5,\n  \"date\": \"2026-04-29\",\n  \"categoryId\": \"COLE_AQUI_O_ID_DA_CATEGORIA\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/transactions", "host": ["{{baseUrl}}"], "path": ["transactions"] }
+      }
+    },
+    {
+      "name": "Listar transaÃ§Ãµes",
+      "request": { "method": "GET", "url": { "raw": "{{baseUrl}}/transactions", "host": ["{{baseUrl}}"], "path": ["transactions"] } }
+    },
+    {
+      "name": "Excluir transaÃ§Ã£o",
+      "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/transactions/:id", "host": ["{{baseUrl}}"], "path": ["transactions", ":id"] } }
+    },
+    {
+      "name": "Validar erros (Zod)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"description\": \"\"\n}" },
+        "url": { "raw": "{{baseUrl}}/transactions", "host": ["{{baseUrl}}"], "path": ["transactions"] }
+      }
+    },
+    {
+      "name": "Login (extra)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"aluno@exemplo.com\",\n  \"password\": \"123456\"\n}" },
+        "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] }
+      }
+    }
+  ],
+  "variable": [{ "key": "baseUrl", "value": "http://localhost:3000" }]
+}
+

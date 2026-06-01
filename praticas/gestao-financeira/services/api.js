@@ -12,6 +12,12 @@
  */
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000";
 
+let accessToken = null;
+
+function setToken(token) {
+  accessToken = token;
+}
+
 /**
  * Função utilitária que executa uma requisição HTTP e padroniza o tratamento de erros.
  *
@@ -21,8 +27,10 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:3000";
  * @throws {Error} Quando a resposta tem status HTTP fora da faixa 2xx.
  */
 async function request(path, options = {}) {
+  const authHeader =
+    accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
   const response = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...authHeader },
     ...options,
   });
 
@@ -35,6 +43,16 @@ async function request(path, options = {}) {
 }
 
 export const api = {
+  setToken,
+
+  /**
+   * Login de usuÃ¡rio.
+   * @param {{email: string, password: string}} data
+   * @returns {Promise<{token: string, user: {id: string, name: string, email: string}}>} Token e usuÃ¡rio.
+   */
+  login: (data) =>
+    request("/auth/login", { method: "POST", body: JSON.stringify(data) }),
+
   /**
    * Lista todas as categorias cadastradas.
    * @returns {Promise<Array>} Lista de categorias ordenadas por displayName.

@@ -1,4 +1,4 @@
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -10,6 +10,10 @@ import { MoneyContext } from "../../contexts/GlobalState";
 import SummaryItem from "../../components/SummaryItem";
 import { globalStyles } from "../../styles/globalStyles";
 import { colors } from "../../constants/colors";
+import MonthYearFilter, {
+  getDefaultMonthYear,
+} from "../../components/MonthYearFilter";
+import PieChart from "../../components/PieChart";
 
 /**
  * Tela "Resumo".
@@ -23,6 +27,7 @@ import { colors } from "../../constants/colors";
  */
 export default function Summary() {
   const { transactions, categories, loading } = useContext(MoneyContext);
+  const [monthYear, setMonthYear] = useState(getDefaultMonthYear);
 
   const { totalsById, balance } = useMemo(() => {
     const acc = {};
@@ -30,7 +35,12 @@ export default function Summary() {
 
     for (const c of categories) acc[c.id] = 0;
 
-    for (const t of transactions) {
+    const filtered = transactions.filter((t) => {
+      const d = new Date(t.date);
+      return d.getFullYear() === monthYear.year && d.getMonth() === monthYear.month;
+    });
+
+    for (const t of filtered) {
       const numericValue = Number(t.value);
       if (acc[t.categoryId] !== undefined) {
         acc[t.categoryId] += numericValue;
@@ -43,7 +53,18 @@ export default function Summary() {
       }
     }
     return { totalsById: acc, balance: saldo };
-  }, [transactions, categories]);
+  }, [transactions, categories, monthYear]);
+
+  const chartData = useMemo(() => {
+    return categories
+      .filter((c) => !c.isIncome)
+      .map((c) => ({
+        label: c.displayName,
+        value: totalsById[c.id] ?? 0,
+        color: c.background,
+      }))
+      .filter((d) => d.value > 0);
+  }, [categories, totalsById]);
 
   if (loading && categories.length === 0) {
     return (
@@ -59,6 +80,15 @@ export default function Summary() {
   return (
     <View style={globalStyles.screenContainer}>
       <ScrollView style={globalStyles.content}>
+        <MonthYearFilter value={monthYear} onChange={setMonthYear} />
+
+        <View style={styles.chartWrap}>
+          <PieChart data={chartData} size={200} />
+          {chartData.length > 0 && (
+            <Text style={styles.chartHint}>DistribuiÃ§Ã£o de gastos no perÃ­odo</Text>
+          )}
+        </View>
+
         {categories.map((category) => (
           <SummaryItem
             key={category.id}
@@ -82,6 +112,14 @@ export default function Summary() {
 }
 
 const styles = StyleSheet.create({
+  chartWrap: {
+    marginBottom: 12,
+  },
+  chartHint: {
+    marginTop: 6,
+    textAlign: "center",
+    color: colors.secondaryText,
+  },
   balance: {
     display: "flex",
     flexDirection: "row",

@@ -1,9 +1,14 @@
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { colors } from "../../constants/colors";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/AuthState";
 
 export default function TabsLayout() {
+  const { isAuthenticated, booting } = useContext(AuthContext);
+  if (!booting && !isAuthenticated) return <Redirect href="/login" />;
+
   return (
     <Tabs
       screenOptions={{
