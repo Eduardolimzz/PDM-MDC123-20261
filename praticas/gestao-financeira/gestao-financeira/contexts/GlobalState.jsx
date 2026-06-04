@@ -62,19 +62,6 @@ export default function GlobalState({ children }) {
   }, []);
 
   /**
-   * Atualiza uma transaÃ§Ã£o no servidor e reflete no estado local.
-   *
-   * @param {string} id - id (cuid) da transaÃ§Ã£o.
-   * @param {object} data - Campos a alterar.
-   * @returns {Promise<object>} TransaÃ§Ã£o atualizada.
-   */
-  const updateTransaction = useCallback(async (id, data) => {
-    const updated = await api.updateTransaction(id, data);
-    setTransactions((prev) => prev.map((t) => (t.id === id ? updated : t)));
-    return updated;
-  }, []);
-
-  /**
    * Exclui uma transação no servidor e remove-a do estado local.
    *
    * @param {string} id - id (cuid) da transação.
@@ -120,7 +107,6 @@ export default function GlobalState({ children }) {
         error,
         refresh,
         addTransaction,
-        updateTransaction,
         removeTransaction,
         addCategory,
         removeCategory,
