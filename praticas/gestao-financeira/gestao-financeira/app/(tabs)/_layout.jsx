@@ -6,7 +6,10 @@ import { colors } from "../../constants/colors";
 export default function TabsLayout() {
   return (
     <Tabs
+      detachInactiveScreens={false}
       screenOptions={{
+        lazy: false,
+        unmountOnBlur: false,
         tabBarHideOnKeyboard: true,
         headerStyle: { backgroundColor: colors.primary },
         headerTintColor: colors.primaryContrast,

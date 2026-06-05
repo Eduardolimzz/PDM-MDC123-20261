@@ -1,17 +1,23 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Modal,
+  Platform,
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { MoneyContext } from "../../contexts/GlobalState";
 import TransactionItem from "../../components/TransactionItem";
+import PeriodFilter, {
+  filterTransactionsByPeriod,
+} from "../../components/PeriodFilter";
 import { globalStyles } from "../../styles/globalStyles";
 import { colors } from "../../constants/colors";
 
@@ -27,10 +33,52 @@ import { colors } from "../../constants/colors";
  * @returns {JSX.Element}
  */
 export default function Transactions() {
-  const { transactions, loading, error, refresh, removeTransaction } =
+  const {
+    transactions,
+    categories,
+    loading,
+    refreshing,
+    hydrated,
+    error,
+    refresh,
+    updateTransaction,
+    removeTransaction,
+  } =
     useContext(MoneyContext);
+  const [editing, setEditing] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [filter, setFilter] = useState({ month: "", year: "" });
+  const filteredTransactions = filterTransactionsByPeriod(transactions, filter);
+
+  const openEdit = (item) => {
+    setEditing({
+      ...item,
+      value: String(Number(item.value).toFixed(2)).replace(".", ","),
+      date: new Date(item.date).toISOString().slice(0, 10),
+      categoryId: item.categoryId,
+    });
+  };
 
   const handleLongPress = (item) => {
+    handleDelete(item);
+  };
+
+  const handleDelete = (item) => {
+    const deleteItem = async () => {
+      try {
+        await removeTransaction(item.id);
+      } catch (e) {
+        Alert.alert("Erro ao excluir", e.message ?? "Tente novamente.");
+      }
+    };
+
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      if (window.confirm(`Deseja excluir "${item.description}"?`)) {
+        deleteItem();
+      }
+      return;
+    }
+
     Alert.alert(
       "Excluir transação",
       `Deseja excluir "${item.description}"?`,
@@ -39,20 +87,36 @@ export default function Transactions() {
         {
           text: "Excluir",
           style: "destructive",
-          onPress: async () => {
-            try {
-              await removeTransaction(item.id);
-            } catch (e) {
-              Alert.alert("Erro ao excluir", e.message ?? "Tente novamente.");
-            }
-          },
+          onPress: deleteItem,
         },
       ],
       { cancelable: true }
     );
   };
 
-  if (loading && transactions.length === 0) {
+  const handleSaveEdit = async () => {
+    const value = Number(String(editing.value).replace(",", "."));
+    if (!editing.description.trim() || !value || value <= 0) {
+      Alert.alert("Confira descrição e valor.");
+      return;
+    }
+    setSaving(true);
+    try {
+      await updateTransaction(editing.id, {
+        description: editing.description.trim(),
+        value,
+        date: editing.date,
+        categoryId: editing.categoryId,
+      });
+      setEditing(null);
+    } catch (e) {
+      Alert.alert("Erro ao editar", e.message ?? "Tente novamente.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (!hydrated && loading && transactions.length === 0) {
     return (
       <View style={[globalStyles.screenContainer, styles.center]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -61,7 +125,7 @@ export default function Transactions() {
     );
   }
 
-  if (error) {
+  if (error && transactions.length === 0) {
     return (
       <View style={[globalStyles.screenContainer, styles.center]}>
         <Text style={globalStyles.primaryText}>
@@ -78,7 +142,7 @@ export default function Transactions() {
   return (
     <View style={globalStyles.screenContainer}>
       <FlatList
-        data={transactions}
+        data={filteredTransactions}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <View style={styles.header}>
@@ -86,15 +150,21 @@ export default function Transactions() {
             <Text style={globalStyles.screenSubtitle}>
               Acompanhe receitas e despesas salvas no backend.
             </Text>
+            {error && (
+              <Text style={styles.inlineError}>
+                Não foi possível atualizar agora. Os últimos dados seguem na tela.
+              </Text>
+            )}
+            <PeriodFilter filter={filter} setFilter={setFilter} />
           </View>
         }
         renderItem={({ item }) => (
-          <TouchableOpacity
+          <TransactionItem
+            {...item}
             onLongPress={() => handleLongPress(item)}
-            activeOpacity={0.82}
-          >
-            <TransactionItem {...item} />
-          </TouchableOpacity>
+            onEdit={() => openEdit(item)}
+            onDelete={() => handleDelete(item)}
+          />
         )}
         ListEmptyComponent={
           <View style={globalStyles.emptyState}>
@@ -112,10 +182,105 @@ export default function Transactions() {
           </View>
         }
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={refresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} />
         }
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.listContent}
       />
+      <Modal
+        visible={Boolean(editing)}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setEditing(null)}
+      >
+        <View style={globalStyles.modalBackdrop}>
+          <View style={globalStyles.modalCard}>
+            <Text style={globalStyles.modalTitle}>Editar transação</Text>
+            <View>
+              <Text style={globalStyles.inputLabel}>Descrição</Text>
+              <TextInput
+                value={editing?.description ?? ""}
+                onChangeText={(description) =>
+                  setEditing((prev) => ({ ...prev, description }))
+                }
+                style={globalStyles.input}
+              />
+            </View>
+            <View style={styles.modalGrid}>
+              <View style={styles.modalField}>
+                <Text style={globalStyles.inputLabel}>Valor</Text>
+                <TextInput
+                  value={editing?.value ?? ""}
+                  onChangeText={(value) =>
+                    setEditing((prev) => ({ ...prev, value }))
+                  }
+                  keyboardType="decimal-pad"
+                  style={globalStyles.input}
+                />
+              </View>
+              <View style={styles.modalField}>
+                <Text style={globalStyles.inputLabel}>Data</Text>
+                <TextInput
+                  value={editing?.date ?? ""}
+                  onChangeText={(date) =>
+                    setEditing((prev) => ({ ...prev, date }))
+                  }
+                  placeholder="AAAA-MM-DD"
+                  style={globalStyles.input}
+                />
+              </View>
+            </View>
+            <View>
+              <Text style={globalStyles.inputLabel}>Categoria</Text>
+              <View style={styles.categoryChips}>
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.id}
+                    onPress={() =>
+                      setEditing((prev) => ({
+                        ...prev,
+                        categoryId: category.id,
+                      }))
+                    }
+                    style={[
+                      styles.categoryChip,
+                      editing?.categoryId === category.id &&
+                        styles.categoryChipActive,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.categoryChipText,
+                        editing?.categoryId === category.id &&
+                          styles.categoryChipTextActive,
+                      ]}
+                    >
+                      {category.displayName}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                onPress={() => setEditing(null)}
+                style={[styles.modalButton, styles.cancelButton]}
+              >
+                <Text style={styles.cancelText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={handleSaveEdit}
+                disabled={saving}
+                style={[styles.modalButton, styles.saveButton, saving && styles.disabled]}
+              >
+                <Text style={styles.saveText}>
+                  {saving ? "Salvando..." : "Salvar"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -149,6 +314,63 @@ const styles = StyleSheet.create({
     color: colors.primaryContrast,
     fontWeight: "600",
   },
+  modalGrid: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  modalField: {
+    flex: 1,
+  },
+  categoryChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: colors.surfaceMuted,
+  },
+  categoryChipActive: {
+    backgroundColor: colors.primary,
+  },
+  categoryChipText: {
+    color: colors.primaryText,
+    fontWeight: "600",
+  },
+  categoryChipTextActive: {
+    color: colors.primaryContrast,
+  },
+  modalActions: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 4,
+  },
+  modalButton: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 46,
+    borderRadius: 12,
+  },
+  cancelButton: {
+    backgroundColor: colors.surfaceMuted,
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
+  },
+  disabled: {
+    opacity: 0.65,
+  },
+  cancelText: {
+    color: colors.primaryText,
+    fontWeight: "700",
+  },
+  saveText: {
+    color: colors.primaryContrast,
+    fontWeight: "700",
+  },
   emptyTitle: {
     color: colors.primaryText,
     fontSize: 18,
@@ -160,5 +382,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     textAlign: "center",
+  },
+  inlineError: {
+    color: colors.negativeText,
+    fontSize: 13,
+    fontWeight: "600",
+    marginTop: 6,
   },
 });

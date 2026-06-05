@@ -22,6 +22,13 @@ export const globalStyles = StyleSheet.create({
     shadowRadius: 14,
     elevation: 3,
   },
+  cardPad: {
+    padding: 16,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   primaryText: {
     color: colors.primaryText,
     fontSize: 16,
@@ -66,6 +73,37 @@ export const globalStyles = StyleSheet.create({
     color: colors.primaryText,
     paddingHorizontal: 12,
     fontSize: 16,
+  },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(15, 23, 42, 0.35)",
+  },
+  modalCard: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    padding: 20,
+    gap: 14,
+  },
+  modalTitle: {
+    color: colors.primaryText,
+    fontSize: 20,
+    fontWeight: "800",
+  },
+  iconButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.surfaceMuted,
+  },
+  dangerButton: {
+    backgroundColor: colors.negativeSoft,
+  },
+  subtleButton: {
+    backgroundColor: colors.primarySoft,
   },
   line: {
     height: 1,

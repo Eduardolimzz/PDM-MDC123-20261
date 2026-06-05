@@ -7,14 +7,20 @@ import { colors } from "../constants/colors";
  * @param {{ children: React.ReactNode, onPress: () => void, disabled?: boolean }} props
  * @returns {JSX.Element}
  */
-export default function Button({ children, onPress, disabled = false }) {
+export default function Button({ children, onPress, disabled = false, variant = "primary" }) {
   return (
     <TouchableHighlight
-      style={[style.background, disabled && style.disabled]}
+      style={[
+        style.background,
+        variant === "secondary" && style.secondary,
+        disabled && style.disabled,
+      ]}
       onPress={disabled ? undefined : onPress}
-      underlayColor={colors.primary}
+      underlayColor={variant === "secondary" ? colors.surfacePressed : colors.primary}
     >
-      <Text style={style.text}>{children}</Text>
+      <Text style={[style.text, variant === "secondary" && style.secondaryText]}>
+        {children}
+      </Text>
     </TouchableHighlight>
   );
 }
@@ -25,8 +31,11 @@ const style = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: 44,
-    borderRadius: 8,
+    borderRadius: 12,
     backgroundColor: colors.primary,
+  },
+  secondary: {
+    backgroundColor: colors.surfaceMuted,
   },
   disabled: {
     opacity: 0.6,
@@ -35,5 +44,8 @@ const style = StyleSheet.create({
     color: colors.primaryContrast,
     fontSize: 18,
     fontWeight: "600",
+  },
+  secondaryText: {
+    color: colors.primaryText,
   },
 });

@@ -2,7 +2,9 @@ export const colors = {
   background: "#F3F6FA",
   surface: "#FFFFFF",
   surfaceMuted: "#EEF3F8",
+  surfacePressed: "#E5EDF7",
   primary: "#2563EB",
+  primarySoft: "#EAF1FF",
   primaryContrast: "#FFFFFF",
   primaryText: "#172033",
   secondaryText: "#687386",
@@ -12,6 +14,7 @@ export const colors = {
   negativeText: "#C0362C",
   negativeSoft: "#FDECEA",
   border: "#D9E2EC",
+  borderStrong: "#B8C4D4",
   shadow: "#0F172A",
   inputBackground: "#FFFFFF",
 };

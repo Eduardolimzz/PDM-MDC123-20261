@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import CategoryItem from "./CategoryItem";
 import { colors } from "../constants/colors";
@@ -12,7 +13,15 @@ import { colors } from "../constants/colors";
  * @param {{ category: object, date: string|Date, description: string, value: string|number }} props
  * @returns {JSX.Element}
  */
-export default function TransactionItem({ category, date, description, value }) {
+export default function TransactionItem({
+  category,
+  date,
+  description,
+  value,
+  onEdit,
+  onDelete,
+  onLongPress,
+}) {
   const numericValue = Number(value);
   const isIncome = Boolean(category?.isIncome);
   const valueStyle = category?.isIncome
@@ -34,30 +43,56 @@ export default function TransactionItem({ category, date, description, value }) 
         { borderLeftColor: isIncome ? colors.positiveText : colors.negativeText },
       ]}
     >
-      <View style={styles.headerRow}>
-        <CategoryItem category={category} />
-        <View style={styles.textContainer}>
-          <Text style={styles.description} numberOfLines={1}>
-            {description}
-          </Text>
-          <Text style={globalStyles.secondaryText} numberOfLines={1}>
-            {category?.displayName ?? "Sem categoria"}
-          </Text>
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onLongPress={onLongPress}
+        style={styles.touchArea}
+      >
+        <View style={styles.headerRow}>
+          <CategoryItem category={category} />
+          <View style={styles.textContainer}>
+            <Text style={styles.description} numberOfLines={1}>
+              {description}
+            </Text>
+            <Text style={globalStyles.secondaryText} numberOfLines={1}>
+              {category?.displayName ?? "Sem categoria"}
+            </Text>
+          </View>
+          <Text style={[valueStyle, styles.value]}>{signedValue}</Text>
         </View>
-        <Text style={[valueStyle, styles.value]}>{signedValue}</Text>
-      </View>
+      </TouchableOpacity>
       <View style={styles.footerRow}>
         <Text style={styles.date}>
           {new Date(date).toLocaleDateString("pt-BR")}
         </Text>
-        <Text
-          style={[
-            styles.badge,
-            isIncome ? styles.incomeBadge : styles.expenseBadge,
-          ]}
-        >
-          {isIncome ? "Receita" : "Despesa"}
-        </Text>
+        <View style={styles.actions}>
+          <Text
+            style={[
+              styles.badge,
+              isIncome ? styles.incomeBadge : styles.expenseBadge,
+            ]}
+          >
+            {isIncome ? "Receita" : "Despesa"}
+          </Text>
+          <TouchableOpacity
+            onPress={onEdit}
+            style={[globalStyles.iconButton, globalStyles.subtleButton]}
+            hitSlop={6}
+          >
+            <MaterialIcons name="edit" size={18} color={colors.primary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onDelete}
+            style={[globalStyles.iconButton, globalStyles.dangerButton]}
+            hitSlop={6}
+          >
+            <MaterialIcons
+              name="delete-outline"
+              size={19}
+              color={colors.negativeText}
+            />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -67,6 +102,9 @@ const styles = StyleSheet.create({
   card: {
     borderLeftWidth: 5,
     padding: 14,
+  },
+  touchArea: {
+    borderRadius: 10,
   },
   headerRow: {
     flexDirection: "row",
@@ -92,6 +130,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 14,
     paddingLeft: 56,
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   date: {
     color: colors.secondaryText,

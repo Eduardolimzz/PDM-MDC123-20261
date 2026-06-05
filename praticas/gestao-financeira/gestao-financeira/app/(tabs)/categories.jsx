@@ -3,6 +3,9 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Modal,
+  Platform,
+  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
@@ -37,7 +40,7 @@ const PRESET_COLORS = [
  * @returns {JSX.Element}
  */
 export default function CategoriesScreen() {
-  const { categories, loading, addCategory, removeCategory } =
+  const { categories, loading, refreshing, hydrated, refresh, addCategory, updateCategory, removeCategory } =
     useContext(MoneyContext);
 
   const [name, setName] = useState("");
@@ -45,6 +48,8 @@ export default function CategoriesScreen() {
   const [icon, setIcon] = useState("label");
   const [background, setBackground] = useState(PRESET_COLORS[0]);
   const [submitting, setSubmitting] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const resetForm = () => {
     setName("");
@@ -86,6 +91,26 @@ export default function CategoriesScreen() {
   };
 
   const handleDelete = (item) => {
+    if (item.isDefault) {
+      Alert.alert("Categoria padrão", "Categorias padrão não podem ser excluídas.");
+      return;
+    }
+
+    const deleteItem = async () => {
+      try {
+        await removeCategory(item.id);
+      } catch (e) {
+        Alert.alert("Erro ao excluir", e.message ?? "Tente novamente.");
+      }
+    };
+
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      if (window.confirm(`Deseja excluir "${item.displayName}"?`)) {
+        deleteItem();
+      }
+      return;
+    }
+
     Alert.alert(
       "Excluir categoria",
       `Deseja excluir "${item.displayName}"?`,
@@ -94,20 +119,35 @@ export default function CategoriesScreen() {
         {
           text: "Excluir",
           style: "destructive",
-          onPress: async () => {
-            try {
-              await removeCategory(item.id);
-            } catch (e) {
-              Alert.alert("Erro ao excluir", e.message ?? "Tente novamente.");
-            }
-          },
+          onPress: deleteItem,
         },
       ],
       { cancelable: true }
     );
   };
 
-  if (loading && categories.length === 0) {
+  const handleSaveEdit = async () => {
+    if (!editing.displayName.trim() || !editing.icon.trim()) {
+      Alert.alert("Confira nome de exibição e ícone.");
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      await updateCategory(editing.id, {
+        displayName: editing.displayName.trim(),
+        icon: editing.icon.trim(),
+        background: editing.background,
+        isIncome: editing.isIncome,
+      });
+      setEditing(null);
+    } catch (e) {
+      Alert.alert("Erro ao editar", e.message ?? "Tente novamente.");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  if (!hydrated && loading && categories.length === 0) {
     return (
       <View style={[globalStyles.screenContainer, styles.center]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -121,92 +161,206 @@ export default function CategoriesScreen() {
         data={categories}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} />
+        }
         ListHeaderComponent={
-          <View style={styles.formContainer}>
-            <Text style={styles.sectionTitle}>Nova categoria</Text>
+          <View style={styles.headerContent}>
+            <Text style={globalStyles.screenTitle}>Categorias</Text>
+            <Text style={globalStyles.screenSubtitle}>
+              Organize receitas e despesas com cores e ícones.
+            </Text>
+            <View style={[globalStyles.card, globalStyles.cardPad, styles.formContainer]}>
+              <Text style={styles.sectionTitle}>Nova categoria</Text>
 
-            <View>
-              <Text style={globalStyles.inputLabel}>Identificador</Text>
-              <TextInput
-                value={name}
-                onChangeText={setName}
-                placeholder="ex.: health"
-                autoCapitalize="none"
-                style={globalStyles.input}
-              />
+              <View>
+                <Text style={globalStyles.inputLabel}>Identificador</Text>
+                <TextInput
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="ex.: health"
+                  autoCapitalize="none"
+                  style={globalStyles.input}
+                />
+              </View>
+
+              <View>
+                <Text style={globalStyles.inputLabel}>Nome de exibição</Text>
+                <TextInput
+                  value={displayName}
+                  onChangeText={setDisplayName}
+                  placeholder="ex.: Saúde"
+                  style={globalStyles.input}
+                />
+              </View>
+
+              <View>
+                <Text style={globalStyles.inputLabel}>Ícone (Material)</Text>
+                <TextInput
+                  value={icon}
+                  onChangeText={setIcon}
+                  placeholder="ex.: favorite, fastfood, work"
+                  autoCapitalize="none"
+                  style={globalStyles.input}
+                />
+              </View>
+
+              <View>
+                <Text style={globalStyles.inputLabel}>Cor</Text>
+                <View style={styles.colorRow}>
+                  {PRESET_COLORS.map((c) => (
+                    <TouchableOpacity
+                      key={c}
+                      onPress={() => setBackground(c)}
+                      style={[
+                        styles.colorDot,
+                        { backgroundColor: c },
+                        background === c && styles.colorDotSelected,
+                      ]}
+                    />
+                  ))}
+                </View>
+              </View>
+
+              <Button onPress={handleCreate} disabled={submitting}>
+                {submitting ? "Salvando..." : "Adicionar categoria"}
+              </Button>
             </View>
 
+            <Text style={styles.sectionTitle}>Categorias cadastradas</Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <View style={[globalStyles.card, styles.categoryRow]}>
+            <CategoryItem category={item} />
+            <View style={styles.categoryInfo}>
+              <Text style={globalStyles.primaryText}>{item.displayName}</Text>
+              <View style={styles.badgeRow}>
+                <Text style={styles.badge}>
+                  {item.isDefault ? "Padrão" : "Customizada"}
+                </Text>
+                <Text
+                  style={[
+                    styles.badge,
+                    item.isIncome ? styles.incomeBadge : styles.expenseBadge,
+                  ]}
+                >
+                  {item.isIncome ? "Receita" : "Despesa"}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.actions}>
+              {!item.isDefault ? (
+                <>
+                  <TouchableOpacity
+                    onPress={() => setEditing({ ...item })}
+                    style={[globalStyles.iconButton, globalStyles.subtleButton]}
+                  >
+                    <MaterialIcons name="edit" size={18} color={colors.primary} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleDelete(item)}
+                    style={[globalStyles.iconButton, globalStyles.dangerButton]}
+                  >
+                    <MaterialIcons
+                      name="delete-outline"
+                      size={20}
+                      color={colors.negativeText}
+                    />
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <Text style={styles.lockedText}>Protegida</Text>
+              )}
+            </View>
+          </View>
+        )}
+      />
+      <Modal
+        visible={Boolean(editing)}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setEditing(null)}
+      >
+        <View style={globalStyles.modalBackdrop}>
+          <View style={globalStyles.modalCard}>
+            <Text style={globalStyles.modalTitle}>Editar categoria</Text>
             <View>
               <Text style={globalStyles.inputLabel}>Nome de exibição</Text>
               <TextInput
-                value={displayName}
-                onChangeText={setDisplayName}
-                placeholder="ex.: Saúde"
+                value={editing?.displayName ?? ""}
+                onChangeText={(displayName) =>
+                  setEditing((prev) => ({ ...prev, displayName }))
+                }
                 style={globalStyles.input}
               />
             </View>
-
             <View>
               <Text style={globalStyles.inputLabel}>Ícone (Material)</Text>
               <TextInput
-                value={icon}
-                onChangeText={setIcon}
-                placeholder="ex.: favorite, fastfood, work"
+                value={editing?.icon ?? ""}
+                onChangeText={(icon) => setEditing((prev) => ({ ...prev, icon }))}
                 autoCapitalize="none"
                 style={globalStyles.input}
               />
             </View>
-
+            <View>
+              <Text style={globalStyles.inputLabel}>Tipo</Text>
+              <View style={styles.typeRow}>
+                <TouchableOpacity
+                  onPress={() => setEditing((prev) => ({ ...prev, isIncome: false }))}
+                  style={[
+                    styles.typeButton,
+                    !editing?.isIncome && styles.typeButtonActive,
+                  ]}
+                >
+                  <Text style={!editing?.isIncome ? styles.typeTextActive : styles.typeText}>
+                    Despesa
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setEditing((prev) => ({ ...prev, isIncome: true }))}
+                  style={[
+                    styles.typeButton,
+                    editing?.isIncome && styles.typeButtonActive,
+                  ]}
+                >
+                  <Text style={editing?.isIncome ? styles.typeTextActive : styles.typeText}>
+                    Receita
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
             <View>
               <Text style={globalStyles.inputLabel}>Cor</Text>
               <View style={styles.colorRow}>
                 {PRESET_COLORS.map((c) => (
                   <TouchableOpacity
                     key={c}
-                    onPress={() => setBackground(c)}
+                    onPress={() =>
+                      setEditing((prev) => ({ ...prev, background: c }))
+                    }
                     style={[
                       styles.colorDot,
                       { backgroundColor: c },
-                      background === c && styles.colorDotSelected,
+                      editing?.background === c && styles.colorDotSelected,
                     ]}
                   />
                 ))}
               </View>
             </View>
-
-            <Button onPress={handleCreate} disabled={submitting}>
-              {submitting ? "Salvando..." : "Adicionar categoria"}
-            </Button>
-
-            <View style={[globalStyles.line, { marginTop: 16 }]} />
-            <Text style={styles.sectionTitle}>Categorias cadastradas</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.categoryRow}>
-            <CategoryItem category={item} />
-            <View style={styles.categoryInfo}>
-              <Text style={globalStyles.primaryText}>{item.displayName}</Text>
-              <Text style={globalStyles.secondaryText}>
-                {item.isDefault ? "padrão" : "personalizada"}
-                {item.isIncome ? " · receita" : ""}
-              </Text>
+            <View style={styles.modalActions}>
+              <Button variant="secondary" onPress={() => setEditing(null)}>
+                Cancelar
+              </Button>
+              <Button onPress={handleSaveEdit} disabled={savingEdit}>
+                {savingEdit ? "Salvando..." : "Salvar"}
+              </Button>
             </View>
-            {!item.isDefault && (
-              <TouchableOpacity
-                onPress={() => handleDelete(item)}
-                hitSlop={8}
-              >
-                <MaterialIcons
-                  name="delete-outline"
-                  size={24}
-                  color={colors.negativeText}
-                />
-              </TouchableOpacity>
-            )}
           </View>
-        )}
-      />
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -219,7 +373,10 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     gap: 12,
-    marginBottom: 8,
+    marginVertical: 12,
+  },
+  headerContent: {
+    gap: 4,
   },
   sectionTitle: {
     fontSize: 16,
@@ -231,7 +388,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    paddingVertical: 6,
+    padding: 14,
   },
   categoryInfo: {
     flex: 1,
@@ -250,6 +407,65 @@ const styles = StyleSheet.create({
   },
   colorDotSelected: {
     borderColor: colors.primaryText,
+  },
+  badgeRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 4,
+  },
+  badge: {
+    overflow: "hidden",
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    backgroundColor: colors.surfaceMuted,
+    color: colors.secondaryText,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  incomeBadge: {
+    color: colors.positiveText,
+    backgroundColor: colors.positiveSoft,
+  },
+  expenseBadge: {
+    color: colors.negativeText,
+    backgroundColor: colors.negativeSoft,
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  lockedText: {
+    color: colors.secondaryText,
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  typeRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  typeButton: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceMuted,
+  },
+  typeButtonActive: {
+    backgroundColor: colors.primary,
+  },
+  typeText: {
+    color: colors.primaryText,
+    fontWeight: "700",
+  },
+  typeTextActive: {
+    color: colors.primaryContrast,
+    fontWeight: "700",
+  },
+  modalActions: {
+    gap: 10,
   },
   center: {
     flex: 1,

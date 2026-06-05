@@ -1,12 +1,10 @@
 import {
   ActivityIndicator,
   Alert,
-  Keyboard,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { useContext, useMemo, useRef, useState } from "react";
@@ -30,7 +28,7 @@ import { colors } from "../../constants/colors";
  * @returns {JSX.Element}
  */
 export default function AddTransactions() {
-  const { categories, loading, addTransaction } = useContext(MoneyContext);
+  const { categories, loading, hydrated, addTransaction } = useContext(MoneyContext);
   const valueInputRef = useRef();
 
   const defaultCategoryId = useMemo(() => {
@@ -85,7 +83,7 @@ export default function AddTransactions() {
     }
   };
 
-  if (loading) {
+  if (!hydrated && loading) {
     return (
       <View style={[globalStyles.screenContainer, styles.center]}>
         <ActivityIndicator size="large" color={colors.primary} />
@@ -109,40 +107,61 @@ export default function AddTransactions() {
 
   return (
     <KeyboardAvoidingView style={globalStyles.screenContainer}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView style={globalStyles.content}>
-          <View style={styles.form}>
-            <DescriptionInput
-              form={form}
-              setForm={setForm}
-              valueInputRef={valueInputRef}
-            />
-            <CurrencyInput
-              form={form}
-              setForm={setForm}
-              valueInputRef={valueInputRef}
-            />
-            <DatePicker form={form} setForm={setForm} />
-            <CategoryPicker
-              form={form}
-              setForm={setForm}
-              categories={categories}
-            />
+        <ScrollView
+          style={globalStyles.content}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.header}>
+            <Text style={globalStyles.screenTitle}>Nova transação</Text>
+            <Text style={globalStyles.screenSubtitle}>
+              Registre uma receita ou despesa usando as categorias do backend.
+            </Text>
           </View>
-          <Button onPress={handleAdd} disabled={submitting}>
-            {submitting ? "Salvando..." : "Adicionar"}
-          </Button>
+          <View style={[globalStyles.card, globalStyles.cardPad, styles.form]}>
+            <View style={styles.formSection}>
+              <DescriptionInput
+                form={form}
+                setForm={setForm}
+                valueInputRef={valueInputRef}
+              />
+              <CurrencyInput
+                form={form}
+                setForm={setForm}
+                valueInputRef={valueInputRef}
+              />
+            </View>
+            <View style={styles.formSection}>
+              <DatePicker form={form} setForm={setForm} />
+              <CategoryPicker
+                form={form}
+                setForm={setForm}
+                categories={categories}
+              />
+            </View>
+            <Button onPress={handleAdd} disabled={submitting}>
+              {submitting ? "Salvando..." : "Adicionar transação"}
+            </Button>
+          </View>
         </ScrollView>
-      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  header: {
+    gap: 4,
+    marginBottom: 14,
+  },
+  scrollContent: {
+    paddingBottom: 32,
+  },
   form: {
+    gap: 18,
+    marginBottom: 32,
+  },
+  formSection: {
     gap: 12,
-    marginBottom: 40,
-    marginTop: 10,
   },
   center: {
     alignItems: "center",
