@@ -13,6 +13,7 @@ import Button from "./Button";
 import { MoneyContext } from "../contexts/GlobalState";
 import { colors } from "../constants/colors";
 import { globalStyles } from "../styles/globalStyles";
+import Card from "./Card";
 
 export default function LoginScreen() {
   const { login, register } = useContext(MoneyContext);
@@ -87,7 +88,7 @@ export default function LoginScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.screen}
     >
-      <View style={[globalStyles.card, styles.card]}>
+      <Card style={styles.card}>
         <View style={styles.header}>
           <Text style={styles.title}>Gestão Financeira</Text>
           <Text style={globalStyles.screenSubtitle}>
@@ -143,10 +144,7 @@ export default function LoginScreen() {
             {isRegister ? "Já tenho cadastro" : "Criar cadastro"}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.note}>
-          Login acadêmico simples. Não usa token nem rotas protegidas.
-        </Text>
-      </View>
+      </Card>
     </KeyboardAvoidingView>
   );
 }
@@ -160,7 +158,8 @@ const styles = StyleSheet.create({
   },
   card: {
     gap: 14,
-    padding: 20,
+    padding: 22,
+    borderRadius: 24,
   },
   header: {
     gap: 6,
@@ -168,7 +167,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: colors.primaryText,
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: "900",
   },
   note: {

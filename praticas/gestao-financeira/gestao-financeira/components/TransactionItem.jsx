@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { globalStyles } from "../styles/globalStyles";
 import CategoryItem from "./CategoryItem";
 import { colors } from "../constants/colors";
+import Card from "./Card";
 
 /**
  * Item de uma transação na lista (tela "Transações").
@@ -36,9 +37,8 @@ export default function TransactionItem({
   )}`;
 
   return (
-    <View
+    <Card
       style={[
-        globalStyles.card,
         styles.card,
         { borderLeftColor: isIncome ? colors.positiveText : colors.negativeText },
       ]}
@@ -76,14 +76,16 @@ export default function TransactionItem({
           </Text>
           <TouchableOpacity
             onPress={onEdit}
-            style={[globalStyles.iconButton, globalStyles.subtleButton]}
+            activeOpacity={0.75}
+            style={[styles.actionButton, styles.editButton]}
             hitSlop={6}
           >
             <MaterialIcons name="edit" size={18} color={colors.primary} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
-            style={[globalStyles.iconButton, globalStyles.dangerButton]}
+            activeOpacity={0.75}
+            style={[styles.actionButton, styles.deleteButton]}
             hitSlop={6}
           >
             <MaterialIcons
@@ -94,14 +96,15 @@ export default function TransactionItem({
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     borderLeftWidth: 5,
-    padding: 14,
+    padding: 16,
+    marginBottom: 2,
   },
   touchArea: {
     borderRadius: 10,
@@ -109,27 +112,28 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 14,
   },
   textContainer: {
     flex: 1,
-    gap: 3,
+    gap: 5,
   },
   description: {
     color: colors.primaryText,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 17,
+    fontWeight: "900",
   },
   value: {
-    fontSize: 16,
+    fontSize: 17,
+    fontWeight: "900",
     textAlign: "right",
   },
   footerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 14,
-    paddingLeft: 56,
+    marginTop: 16,
+    paddingLeft: 68,
   },
   actions: {
     flexDirection: "row",
@@ -139,15 +143,15 @@ const styles = StyleSheet.create({
   date: {
     color: colors.secondaryText,
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: "700",
   },
   badge: {
     overflow: "hidden",
     borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 11,
+    paddingVertical: 5,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "900",
   },
   incomeBadge: {
     color: colors.positiveText,
@@ -155,6 +159,19 @@ const styles = StyleSheet.create({
   },
   expenseBadge: {
     color: colors.negativeText,
+    backgroundColor: colors.negativeSoft,
+  },
+  actionButton: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+  },
+  editButton: {
+    backgroundColor: colors.primarySoft,
+  },
+  deleteButton: {
     backgroundColor: colors.negativeSoft,
   },
 });

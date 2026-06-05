@@ -12,12 +12,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { MoneyContext } from "../../contexts/GlobalState";
 import TransactionItem from "../../components/TransactionItem";
 import PeriodFilter, {
   filterTransactionsByPeriod,
 } from "../../components/PeriodFilter";
+import EmptyState from "../../components/EmptyState";
+import Card from "../../components/Card";
 import { globalStyles } from "../../styles/globalStyles";
 import { colors } from "../../constants/colors";
 
@@ -148,16 +149,18 @@ export default function Transactions() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <View style={styles.header}>
-            <View style={styles.userRow}>
+            <Card style={styles.heroCard}>
+              <View style={styles.userRow}>
               <Text style={styles.welcome}>Olá, {user?.name}!</Text>
               <TouchableOpacity onPress={logout} style={styles.logoutButton}>
                 <Text style={styles.logoutText}>Sair</Text>
               </TouchableOpacity>
-            </View>
-            <Text style={globalStyles.screenTitle}>Transações</Text>
-            <Text style={globalStyles.screenSubtitle}>
-              Acompanhe receitas e despesas salvas no backend.
-            </Text>
+              </View>
+              <Text style={styles.heroTitle}>Transações</Text>
+              <Text style={styles.heroSubtitle}>
+                Acompanhe receitas e despesas salvas no backend.
+              </Text>
+            </Card>
             {error && (
               <Text style={styles.inlineError}>
                 Não foi possível atualizar agora. Os últimos dados seguem na tela.
@@ -175,19 +178,11 @@ export default function Transactions() {
           />
         )}
         ListEmptyComponent={
-          <View style={globalStyles.emptyState}>
-            <View style={globalStyles.emptyIcon}>
-              <MaterialIcons
-                name="receipt-long"
-                size={32}
-                color={colors.primary}
-              />
-            </View>
-            <Text style={styles.emptyTitle}>Nenhuma transação ainda</Text>
-            <Text style={styles.emptyText}>
-              Use a aba central para registrar sua primeira receita ou despesa.
-            </Text>
-          </View>
+          <EmptyState
+            icon="receipt-long"
+            title="Nenhuma transação ainda"
+            description="Use a aba central para registrar sua primeira receita ou despesa."
+          />
         }
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={refresh} />
@@ -295,8 +290,14 @@ export default function Transactions() {
 
 const styles = StyleSheet.create({
   header: {
-    marginBottom: 12,
-    gap: 4,
+    marginBottom: 14,
+    gap: 8,
+  },
+  heroCard: {
+    padding: 18,
+    gap: 6,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   userRow: {
     flexDirection: "row",
@@ -305,7 +306,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   welcome: {
-    color: colors.primary,
+    color: colors.primarySoft,
     fontSize: 15,
     fontWeight: "800",
   },
@@ -313,18 +314,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: "rgba(255,255,255,0.18)",
   },
   logoutText: {
-    color: colors.primaryText,
+    color: colors.primaryContrast,
     fontSize: 13,
     fontWeight: "800",
   },
+  heroTitle: {
+    color: colors.primaryContrast,
+    fontSize: 28,
+    fontWeight: "900",
+    marginTop: 8,
+  },
+  heroSubtitle: {
+    color: "#EDE9FE",
+    fontSize: 14,
+    lineHeight: 20,
+  },
   listContent: {
     paddingTop: 18,
-    paddingBottom: 28,
-    paddingHorizontal: 20,
-    gap: 14,
+    paddingBottom: 104,
+    paddingHorizontal: 18,
+    gap: 16,
   },
   center: {
     flex: 1,
@@ -400,18 +412,6 @@ const styles = StyleSheet.create({
   saveText: {
     color: colors.primaryContrast,
     fontWeight: "700",
-  },
-  emptyTitle: {
-    color: colors.primaryText,
-    fontSize: 18,
-    fontWeight: "800",
-    textAlign: "center",
-  },
-  emptyText: {
-    color: colors.secondaryText,
-    fontSize: 14,
-    lineHeight: 20,
-    textAlign: "center",
   },
   inlineError: {
     color: colors.negativeText,

@@ -37,10 +37,11 @@ const styles = StyleSheet.create({
   picker: {
     display: "flex",
     justifyContent: "center",
-    height: 44,
-    borderColor: colors.secondaryText,
+    minHeight: 52,
+    borderColor: colors.border,
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 14,
     flexGrow: 1,
+    backgroundColor: colors.inputBackground,
   },
 });

@@ -343,7 +343,7 @@ Olá, Administrador!
 
 ## Observações Importantes
 
-- O backend não usa autenticação real com token.
+- O mecanismo de autenticação foi implementado de forma simplificada para fins acadêmicos, atendendo aos requisitos da atividade.
 - O login foi implementado de forma simples para requisito acadêmico.
 - As rotas de categorias e transações continuam públicas.
 - O frontend guarda o usuário autenticado localmente para manter o login durante o uso do app.
@@ -390,3 +390,9 @@ Implementado:
 - Resumo com saldo, totais e gráfico visual;
 - Postman atualizado;
 - Documentação atualizada.
+
+## Autor
+
+Aluno: Eduardo Lima dos Santos
+Matrícula: 2412130074
+Curso: Ciência da Computação - IESB

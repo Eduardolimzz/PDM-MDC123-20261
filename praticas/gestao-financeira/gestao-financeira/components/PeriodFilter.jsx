@@ -2,6 +2,7 @@ import { Picker } from "@react-native-picker/picker";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { colors } from "../constants/colors";
 import { globalStyles } from "../styles/globalStyles";
+import Card from "./Card";
 
 const MONTHS = [
   { label: "Todos os meses", value: "" },
@@ -34,7 +35,7 @@ export default function PeriodFilter({ filter, setFilter }) {
   const clear = () => setFilter({ month: "", year: "" });
 
   return (
-    <View style={[globalStyles.card, styles.container]}>
+    <Card style={styles.container}>
       <View style={styles.field}>
         <Text style={globalStyles.inputLabel}>Mês</Text>
         <View style={styles.pickerBox}>
@@ -68,29 +69,29 @@ export default function PeriodFilter({ filter, setFilter }) {
             style={globalStyles.input}
           />
         </View>
-        <TouchableOpacity onPress={clear} style={styles.clearButton}>
+        <TouchableOpacity onPress={clear} activeOpacity={0.75} style={styles.clearButton}>
           <Text style={styles.clearText}>Limpar</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
-    padding: 12,
-    marginTop: 12,
+    gap: 12,
+    padding: 14,
+    marginTop: 14,
   },
   field: {
     gap: 2,
   },
   pickerBox: {
     justifyContent: "center",
-    minHeight: 48,
+    minHeight: 52,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
+    borderRadius: 14,
     backgroundColor: colors.inputBackground,
   },
   yearRow: {
@@ -105,12 +106,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     minHeight: 48,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceMuted,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    backgroundColor: colors.primarySoft,
   },
   clearText: {
-    color: colors.primaryText,
-    fontWeight: "700",
+    color: colors.primary,
+    fontWeight: "900",
   },
 });

@@ -17,9 +17,21 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.inactive,
         tabBarStyle: {
-          height: 60,
-          paddingTop: 5,
-          backgroundColor: colors.background,
+          height: 72,
+          paddingTop: 8,
+          paddingBottom: 8,
+          backgroundColor: colors.surface,
+          borderTopWidth: 1,
+          borderTopColor: colors.border,
+          shadowColor: colors.shadow,
+          shadowOffset: { width: 0, height: -6 },
+          shadowOpacity: 0.06,
+          shadowRadius: 14,
+          elevation: 10,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "800",
         },
         tabBarButton: (props) => (
           <TouchableOpacity {...props} activeOpacity={0.8} />
@@ -82,5 +94,10 @@ const styles = StyleSheet.create({
     width: 64,
     borderRadius: 32,
     backgroundColor: colors.primary,
+    shadowColor: colors.primaryDark,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.24,
+    shadowRadius: 14,
+    elevation: 8,
   },
 });

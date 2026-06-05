@@ -10,23 +10,38 @@ import { colors } from "../constants/colors";
  */
 export default function CategoryItem({ category }) {
   return (
-    <View style={[styles.background, { backgroundColor: category.background }]}>
+    <View style={styles.ring}>
+      <View style={[styles.background, { backgroundColor: category.background }]}>
       <MaterialIcons
         name={category.icon}
         size={24}
         color={colors.primaryContrast}
       />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  ring: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: colors.surfaceMuted,
+  },
   background: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 2,
   },
 });

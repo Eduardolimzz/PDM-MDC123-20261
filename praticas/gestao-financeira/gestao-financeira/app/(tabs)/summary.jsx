@@ -13,6 +13,7 @@ import PeriodFilter, {
 } from "../../components/PeriodFilter";
 import { globalStyles } from "../../styles/globalStyles";
 import { colors } from "../../constants/colors";
+import Card from "../../components/Card";
 
 /**
  * Tela "Resumo".
@@ -83,10 +84,12 @@ export default function Summary() {
   return (
     <View style={globalStyles.screenContainer}>
       <ScrollView style={globalStyles.content}>
-        <Text style={globalStyles.screenTitle}>Resumo</Text>
-        <Text style={globalStyles.screenSubtitle}>
-          Totais calculados com os dados carregados da API.
-        </Text>
+        <Card style={styles.heroCard}>
+          <Text style={styles.heroTitle}>Resumo</Text>
+          <Text style={styles.heroSubtitle}>
+            Totais calculados com os dados carregados da API.
+          </Text>
+        </Card>
         <PeriodFilter filter={filter} setFilter={setFilter} />
         <View style={[globalStyles.card, styles.balanceCard]}>
           <Text style={styles.balanceLabel}>Saldo atual</Text>
@@ -96,7 +99,7 @@ export default function Summary() {
               currency: "BRL",
             })}
           </Text>
-          <Text style={globalStyles.screenSubtitle}>
+          <Text style={styles.balanceHint}>
             Calculado com as transações cadastradas.
           </Text>
         </View>
@@ -172,10 +175,29 @@ export default function Summary() {
 }
 
 const styles = StyleSheet.create({
-  balanceCard: {
+  heroCard: {
     padding: 18,
     gap: 6,
-    marginBottom: 12,
+    marginBottom: 2,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  heroTitle: {
+    color: colors.primaryContrast,
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  heroSubtitle: {
+    color: "#EDE9FE",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  balanceCard: {
+    padding: 20,
+    gap: 8,
+    marginTop: 14,
+    marginBottom: 14,
+    borderRadius: 22,
   },
   balanceLabel: {
     color: colors.secondaryText,
@@ -184,44 +206,51 @@ const styles = StyleSheet.create({
   },
   balancePositive: {
     color: colors.positiveText,
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "900",
   },
   balanceNegative: {
     color: colors.negativeText,
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "900",
+  },
+  balanceHint: {
+    color: colors.secondaryText,
+    fontSize: 13,
+    lineHeight: 19,
   },
   totalGrid: {
     flexDirection: "row",
     gap: 12,
-    marginBottom: 18,
+    marginBottom: 20,
   },
   totalCard: {
     flex: 1,
-    padding: 14,
-    gap: 6,
+    padding: 16,
+    gap: 8,
+    borderRadius: 18,
   },
   totalLabel: {
     color: colors.secondaryText,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "900",
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: colors.primaryText,
     fontWeight: "800",
     marginBottom: 10,
     marginTop: 4,
   },
   chartCard: {
-    padding: 14,
-    gap: 12,
-    marginBottom: 12,
+    padding: 16,
+    gap: 14,
+    marginBottom: 14,
+    borderRadius: 20,
   },
   chartTitle: {
     color: colors.primaryText,
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: "800",
   },
   chartRow: {
@@ -244,7 +273,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   barTrack: {
-    height: 10,
+    height: 12,
     borderRadius: 999,
     overflow: "hidden",
     backgroundColor: colors.surfaceMuted,
@@ -254,11 +283,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
   categoryList: {
-    gap: 10,
-    paddingBottom: 24,
+    gap: 12,
+    paddingBottom: 104,
   },
   categoryCard: {
-    padding: 14,
+    padding: 16,
+    borderRadius: 18,
   },
   center: {
     flex: 1,

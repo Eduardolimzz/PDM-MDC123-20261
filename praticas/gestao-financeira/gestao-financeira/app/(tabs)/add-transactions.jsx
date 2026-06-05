@@ -16,6 +16,7 @@ import DatePicker from "../../components/DatePicker";
 import CategoryPicker from "../../components/CategoryPicker";
 import { MoneyContext } from "../../contexts/GlobalState";
 import { colors } from "../../constants/colors";
+import Card from "../../components/Card";
 
 /**
  * Tela "Adicionar Transação".
@@ -112,12 +113,12 @@ export default function AddTransactions() {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.scrollContent}
         >
-          <View style={styles.header}>
-            <Text style={globalStyles.screenTitle}>Nova transação</Text>
-            <Text style={globalStyles.screenSubtitle}>
+          <Card style={styles.header}>
+            <Text style={styles.heroTitle}>Nova transação</Text>
+            <Text style={styles.heroSubtitle}>
               Registre uma receita ou despesa usando as categorias do backend.
             </Text>
-          </View>
+          </Card>
           <View style={[globalStyles.card, globalStyles.cardPad, styles.form]}>
             <View style={styles.formSection}>
               <DescriptionInput
@@ -150,18 +151,32 @@ export default function AddTransactions() {
 
 const styles = StyleSheet.create({
   header: {
-    gap: 4,
+    gap: 6,
     marginBottom: 14,
+    padding: 18,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  heroTitle: {
+    color: colors.primaryContrast,
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  heroSubtitle: {
+    color: "#EDE9FE",
+    fontSize: 14,
+    lineHeight: 20,
   },
   scrollContent: {
-    paddingBottom: 32,
+    paddingBottom: 104,
   },
   form: {
-    gap: 18,
+    gap: 20,
     marginBottom: 32,
+    borderRadius: 20,
   },
   formSection: {
-    gap: 12,
+    gap: 14,
   },
   center: {
     alignItems: "center",

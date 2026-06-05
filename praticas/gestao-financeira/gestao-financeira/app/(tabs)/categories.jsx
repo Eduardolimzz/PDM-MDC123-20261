@@ -18,6 +18,7 @@ import Button from "../../components/Button";
 import CategoryItem from "../../components/CategoryItem";
 import { globalStyles } from "../../styles/globalStyles";
 import { colors } from "../../constants/colors";
+import Card from "../../components/Card";
 
 const PRESET_COLORS = [
   "#DE9AC3",
@@ -167,10 +168,12 @@ export default function CategoriesScreen() {
         }
         ListHeaderComponent={
           <View style={styles.headerContent}>
-            <Text style={globalStyles.screenTitle}>Categorias</Text>
-            <Text style={globalStyles.screenSubtitle}>
-              Organize receitas e despesas com cores e ícones.
-            </Text>
+            <Card style={styles.heroCard}>
+              <Text style={styles.heroTitle}>Categorias</Text>
+              <Text style={styles.heroSubtitle}>
+                Organize receitas e despesas com cores e ícones.
+              </Text>
+            </Card>
             <View style={[globalStyles.card, globalStyles.cardPad, styles.formContainer]}>
               <Text style={styles.sectionTitle}>Nova categoria</Text>
 
@@ -195,16 +198,7 @@ export default function CategoriesScreen() {
                 />
               </View>
 
-              <View>
-                <Text style={globalStyles.inputLabel}>Ícone (Material)</Text>
-                <TextInput
-                  value={icon}
-                  onChangeText={setIcon}
-                  placeholder="ex.: favorite, fastfood, work"
-                  autoCapitalize="none"
-                  style={globalStyles.input}
-                />
-              </View>
+              
 
               <View>
                 <Text style={globalStyles.inputLabel}>Cor</Text>
@@ -296,15 +290,7 @@ export default function CategoriesScreen() {
                 style={globalStyles.input}
               />
             </View>
-            <View>
-              <Text style={globalStyles.inputLabel}>Ícone (Material)</Text>
-              <TextInput
-                value={editing?.icon ?? ""}
-                onChangeText={(icon) => setEditing((prev) => ({ ...prev, icon }))}
-                autoCapitalize="none"
-                style={globalStyles.input}
-              />
-            </View>
+           
             <View>
               <Text style={globalStyles.inputLabel}>Tipo</Text>
               <View style={styles.typeRow}>
@@ -367,28 +353,46 @@ export default function CategoriesScreen() {
 
 const styles = StyleSheet.create({
   listContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    gap: 12,
+    paddingTop: 18,
+    paddingBottom: 104,
+    paddingHorizontal: 18,
+    gap: 14,
   },
   formContainer: {
-    gap: 12,
-    marginVertical: 12,
+    gap: 14,
+    marginVertical: 14,
   },
   headerContent: {
     gap: 4,
   },
+  heroCard: {
+    padding: 18,
+    gap: 6,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  heroTitle: {
+    color: colors.primaryContrast,
+    fontSize: 28,
+    fontWeight: "900",
+  },
+  heroSubtitle: {
+    color: "#EDE9FE",
+    fontSize: 14,
+    lineHeight: 20,
+  },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 17,
+    fontWeight: "900",
     color: colors.primaryText,
     marginTop: 4,
   },
   categoryRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    padding: 14,
+    gap: 14,
+    padding: 16,
+    borderRadius: 20,
   },
   categoryInfo: {
     flex: 1,
@@ -396,17 +400,18 @@ const styles = StyleSheet.create({
   colorRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 10,
   },
   colorDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 2,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 3,
     borderColor: "transparent",
   },
   colorDotSelected: {
-    borderColor: colors.primaryText,
+    borderColor: colors.primary,
+    transform: [{ scale: 1.08 }],
   },
   badgeRow: {
     flexDirection: "row",
@@ -417,12 +422,12 @@ const styles = StyleSheet.create({
   badge: {
     overflow: "hidden",
     borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     backgroundColor: colors.surfaceMuted,
     color: colors.secondaryText,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "900",
   },
   incomeBadge: {
     color: colors.positiveText,
@@ -438,9 +443,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   lockedText: {
-    color: colors.secondaryText,
+    color: colors.warningText,
     fontSize: 12,
-    fontWeight: "700",
+    fontWeight: "900",
+    backgroundColor: colors.warningSoft,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
   typeRow: {
     flexDirection: "row",
@@ -450,7 +459,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: 14,
     backgroundColor: colors.surfaceMuted,
   },
   typeButtonActive: {
