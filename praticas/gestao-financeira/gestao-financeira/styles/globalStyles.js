@@ -11,6 +11,17 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
   },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 3,
+  },
   primaryText: {
     color: colors.primaryText,
     fontSize: 16,
@@ -19,6 +30,16 @@ export const globalStyles = StyleSheet.create({
   secondaryText: {
     color: colors.secondaryText,
     fontSize: 14,
+  },
+  screenTitle: {
+    color: colors.primaryText,
+    fontSize: 24,
+    fontWeight: "800",
+  },
+  screenSubtitle: {
+    color: colors.secondaryText,
+    fontSize: 14,
+    lineHeight: 20,
   },
   positiveText: {
     color: colors.positiveText,
@@ -50,5 +71,21 @@ export const globalStyles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginVertical: 8,
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 48,
+    gap: 10,
+  },
+  emptyIcon: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.surfaceMuted,
+    marginBottom: 4,
   },
 });

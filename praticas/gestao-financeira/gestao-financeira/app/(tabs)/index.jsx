@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 import { MoneyContext } from "../../contexts/GlobalState";
 import TransactionItem from "../../components/TransactionItem";
 import { globalStyles } from "../../styles/globalStyles";
@@ -79,18 +80,36 @@ export default function Transactions() {
       <FlatList
         data={transactions}
         keyExtractor={(item) => item.id}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Text style={globalStyles.screenTitle}>Transações</Text>
+            <Text style={globalStyles.screenSubtitle}>
+              Acompanhe receitas e despesas salvas no backend.
+            </Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             onLongPress={() => handleLongPress(item)}
-            activeOpacity={0.7}
+            activeOpacity={0.82}
           >
             <TransactionItem {...item} />
           </TouchableOpacity>
         )}
         ListEmptyComponent={
-          <Text style={globalStyles.secondaryText}>
-            Ainda não há nenhum item! Adicione na aba do meio.
-          </Text>
+          <View style={globalStyles.emptyState}>
+            <View style={globalStyles.emptyIcon}>
+              <MaterialIcons
+                name="receipt-long"
+                size={32}
+                color={colors.primary}
+              />
+            </View>
+            <Text style={styles.emptyTitle}>Nenhuma transação ainda</Text>
+            <Text style={styles.emptyText}>
+              Use a aba central para registrar sua primeira receita ou despesa.
+            </Text>
+          </View>
         }
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={refresh} />
@@ -102,10 +121,15 @@ export default function Transactions() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    marginBottom: 12,
+    gap: 4,
+  },
   listContent: {
-    paddingVertical: 12,
+    paddingTop: 18,
+    paddingBottom: 28,
     paddingHorizontal: 20,
-    gap: 12,
+    gap: 14,
   },
   center: {
     flex: 1,
@@ -124,5 +148,17 @@ const styles = StyleSheet.create({
   retryText: {
     color: colors.primaryContrast,
     fontWeight: "600",
+  },
+  emptyTitle: {
+    color: colors.primaryText,
+    fontSize: 18,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  emptyText: {
+    color: colors.secondaryText,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
   },
 });
