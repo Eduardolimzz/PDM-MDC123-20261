@@ -6,6 +6,7 @@ Este documento explica como configurar, executar e testar a API do projeto **Ges
 
 A API foi desenvolvida para salvar e gerenciar:
 
+* Usuários simples para login acadêmico;
 * Categorias de receitas e despesas;
 * Transações financeiras;
 * Validações de entrada;
@@ -129,6 +130,14 @@ Esse comando popula o banco com as categorias padrão:
 * education
 * travel
 
+Também cria o usuário padrão para login acadêmico:
+
+```text
+Nome: Administrador
+Email: admin@admin.com
+Senha: 123456
+```
+
 Essas categorias são necessárias para os testes da Collection.
 
 ---
@@ -184,6 +193,7 @@ A Collection utiliza variáveis para facilitar os testes.
 | `incomeId`      | vazio                   | ID da categoria padrão `income`             |
 | `categoryId`    | vazio                   | ID da categoria customizada criada no teste |
 | `transactionId` | vazio                   | ID da transação criada no teste             |
+| `userId`        | vazio                   | ID do usuário criado ou autenticado         |
 
 Antes de rodar algumas requisições, será necessário preencher manualmente os IDs retornados pelas respostas anteriores.
 
@@ -220,7 +230,155 @@ Status esperado:
 
 ---
 
-## 10.2 Listar categorias
+## 10.2 Cadastrar usuário
+
+### Objetivo
+
+Validar o cadastro simples de usuário usado pelo requisito acadêmico de login.
+
+### Requisição
+
+```http
+POST {{baseUrl}}/auth/register
+```
+
+### Body
+
+```json
+{
+  "name": "Eduardo",
+  "email": "eduardo@email.com",
+  "password": "123456"
+}
+```
+
+### Resposta esperada
+
+Status:
+
+```text
+201 Created
+```
+
+Exemplo de resposta:
+
+```json
+{
+  "id": "...",
+  "name": "Eduardo",
+  "email": "eduardo@email.com"
+}
+```
+
+### Observação
+
+Se o mesmo email já tiver sido cadastrado antes, a API retorna:
+
+```text
+409 Conflict
+```
+
+com:
+
+```json
+{
+  "error": "Registro duplicado"
+}
+```
+
+---
+
+## 10.3 Login de usuário
+
+### Objetivo
+
+Validar o login simples usando o usuário padrão criado no seed.
+
+### Requisição
+
+```http
+POST {{baseUrl}}/auth/login
+```
+
+### Body
+
+```json
+{
+  "email": "admin@admin.com",
+  "password": "123456"
+}
+```
+
+### Resposta esperada
+
+Status:
+
+```text
+200 OK
+```
+
+Corpo esperado:
+
+```json
+{
+  "id": "...",
+  "name": "Administrador",
+  "email": "admin@admin.com"
+}
+```
+
+### Ação após executar
+
+Copie o `id` retornado e, se desejar, preencha a variável:
+
+```text
+userId
+```
+
+Não há token JWT nesta implementação.
+
+---
+
+## 10.4 Login inválido
+
+### Objetivo
+
+Validar erro de acesso quando email ou senha não conferem.
+
+### Requisição
+
+```http
+POST {{baseUrl}}/auth/login
+```
+
+### Body
+
+```json
+{
+  "email": "admin@admin.com",
+  "password": "senha-errada"
+}
+```
+
+### Resposta esperada
+
+Status:
+
+```text
+401 Unauthorized
+```
+
+Corpo esperado:
+
+```json
+{
+  "error": "Credenciais inválidas"
+}
+```
+
+---
+
+## 10.5 Listar categorias
 
 ### Objetivo
 
@@ -260,7 +418,7 @@ incomeId
 
 ---
 
-## 10.3 Criar categoria
+## 10.6 Criar categoria
 
 ### Objetivo
 
@@ -304,7 +462,7 @@ categoryId
 
 ---
 
-## 10.4 Atualizar categoria
+## 10.7 Atualizar categoria
 
 ### Objetivo
 
@@ -336,7 +494,7 @@ A resposta deve mostrar a categoria com o novo `displayName`.
 
 ---
 
-## 10.5 Excluir categoria customizada
+## 10.8 Excluir categoria customizada
 
 ### Objetivo
 
@@ -360,7 +518,7 @@ Não deve retornar corpo na resposta.
 
 ---
 
-## 10.6 Excluir categoria padrão
+## 10.9 Excluir categoria padrão
 
 ### Objetivo
 
@@ -394,7 +552,7 @@ Corpo esperado:
 
 ---
 
-## 10.7 Criar transação
+## 10.10 Criar transação
 
 ### Objetivo
 
@@ -441,7 +599,7 @@ transactionId
 
 ---
 
-## 10.8 Listar transações
+## 10.11 Listar transações
 
 ### Objetivo
 
@@ -465,7 +623,7 @@ A resposta deve conter uma lista de transações, incluindo a categoria associad
 
 ---
 
-## 10.9 Atualizar transação
+## 10.12 Atualizar transação
 
 ### Objetivo
 
@@ -501,7 +659,7 @@ A resposta deve conter a transação atualizada.
 
 ---
 
-## 10.10 Excluir transação
+## 10.13 Excluir transação
 
 ### Objetivo
 
@@ -525,7 +683,7 @@ Não deve retornar corpo na resposta.
 
 ---
 
-## 10.11 Validar erro de categoria
+## 10.14 Validar erro de categoria
 
 ### Objetivo
 
@@ -564,7 +722,7 @@ O campo `details` pode conter a lista de problemas encontrados na validação.
 
 ---
 
-## 10.12 Validar erro de transação
+## 10.15 Validar erro de transação
 
 ### Objetivo
 
@@ -605,17 +763,38 @@ Exemplo de resposta:
 
 # 11. Autenticação
 
-A versão atual do backend não utiliza autenticação.
+A versão atual possui apenas um login acadêmico simples para cumprir o requisito da atividade.
 
-Portanto, não é necessário configurar:
+Foram criadas as rotas:
 
-* Login;
-* Senha;
-* Token JWT;
-* Bearer Token;
-* API Key.
+```text
+POST /auth/register
+POST /auth/login
+```
 
-As rotas podem ser testadas diretamente pela Collection.
+Importante:
+
+* Não existe JWT;
+* Não existe Bearer Token;
+* Não existe refresh token;
+* Não existe middleware protegendo rotas;
+* As rotas de categorias e transações continuam públicas;
+* A senha é salva em texto simples apenas por simplicidade acadêmica.
+
+Usuário padrão do seed:
+
+```text
+Email: admin@admin.com
+Senha: 123456
+```
+
+No frontend, ao fazer login com sucesso, o app guarda o usuário retornado no contexto e exibe:
+
+```text
+Olá, Administrador!
+```
+
+O botão `Sair` limpa o usuário no frontend.
 
 ---
 
