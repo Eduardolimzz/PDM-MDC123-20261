@@ -1,0 +1,395 @@
+{
+	"info": {
+		"_postman_id": "1a576efc-c9ca-42ff-966b-f6b66edf55ef",
+		"name": "Gestão Financeira API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47658280",
+		"_collection_link": "https://eduardoaluno1800-3054866.postman.co/workspace/Eduardo-Lima's-Workspace~142d522b-c1d4-4221-8da9-7104476ad908/collection/47658280-1a576efc-c9ca-42ff-966b-f6b66edf55ef?action=share&source=collection_link&creator=47658280"
+	},
+	"item": [
+		{
+			"name": "Health-check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}",
+					"host": [
+						"{{baseUrl}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Cadastrar-usuário",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Eduardo\",\n  \"email\": \"eduardo@email.com\",\n  \"password\": \"123456\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login-usuário",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"123456\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login-inválido",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"admin@admin.com\",\n  \"password\": \"senha-errada\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar-categorias",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/categories",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar-categoria",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"health\",\n  \"displayName\": \"Saúde\",\n  \"icon\": \"favorite\",\n  \"background\": \"#FFB6B6\",\n  \"isIncome\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/categories",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar-categoria",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"displayName\": \"Saúde e Bem-estar\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/categories/{{categoryId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories",
+						"{{categoryId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Excluir-categoria-customizada",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/categories/{{categoryId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories",
+						"{{categoryId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Excluir-categoria-padrão",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/categories/{{incomeId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories",
+						"{{incomeId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Criar-transação",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Salário de outubro\",\n  \"value\": 3500.50,\n  \"date\": \"2026-04-29\",\n  \"categoryId\": \"{{incomeId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/transactions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar-transações",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/transactions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Atualizar-transação",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"Salário Atualizado\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/transactions/{{transactionId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"transactions",
+						"{{transactionId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Excluir-transação",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/transactions/{{transactionId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"transactions",
+						"{{transactionId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validar-erro-de-categoria",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/categories",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validar-erro-de-transação",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"description\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/transactions",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "categoryId",
+			"value": ""
+		},
+		{
+			"key": "incomeId",
+			"value": ""
+		},
+		{
+			"key": "transactionId",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
