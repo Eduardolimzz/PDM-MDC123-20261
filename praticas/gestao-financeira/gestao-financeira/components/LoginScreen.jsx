@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Button from "./Button";
@@ -14,25 +15,72 @@ import { colors } from "../constants/colors";
 import { globalStyles } from "../styles/globalStyles";
 
 export default function LoginScreen() {
-  const { login } = useContext(MoneyContext);
+  const { login, register } = useContext(MoneyContext);
+  const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleLogin = () => {
-    if (!name.trim()) {
-      Alert.alert("Informe seu nome.");
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPassword("");
+  };
+
+  const handleLogin = async () => {
+    if (!email.trim()) {
+      Alert.alert("Informe seu email.");
       return;
     }
     if (!password.trim()) {
       Alert.alert("Informe sua senha.");
       return;
     }
-    if (password.length < 4) {
-      Alert.alert("A senha deve ter pelo menos 4 caracteres.");
+    setSubmitting(true);
+    try {
+      await login({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+    } catch {
+      Alert.alert("Erro ao entrar", "Credenciais inválidas");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!name.trim()) {
+      Alert.alert("Informe seu nome.");
       return;
     }
-    login(name);
+    if (!email.trim()) {
+      Alert.alert("Informe seu email.");
+      return;
+    }
+    if (!password.trim()) {
+      Alert.alert("Informe sua senha.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await register({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      Alert.alert("Cadastro criado", "Agora entre com seu email e senha.");
+      resetForm();
+      setMode("login");
+    } catch (e) {
+      Alert.alert("Erro ao cadastrar", e.message ?? "Tente novamente.");
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const isRegister = mode === "register";
 
   return (
     <KeyboardAvoidingView
@@ -43,16 +91,29 @@ export default function LoginScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>Gestão Financeira</Text>
           <Text style={globalStyles.screenSubtitle}>
-            Acesso acadêmico local para usar o app.
+            {isRegister ? "Crie um acesso simples." : "Entre para acessar o app."}
           </Text>
         </View>
+        {isRegister && (
+          <View>
+            <Text style={globalStyles.inputLabel}>Nome</Text>
+            <TextInput
+              value={name}
+              onChangeText={setName}
+              placeholder="Digite seu nome"
+              autoCapitalize="words"
+              style={globalStyles.input}
+            />
+          </View>
+        )}
         <View>
-          <Text style={globalStyles.inputLabel}>Nome</Text>
+          <Text style={globalStyles.inputLabel}>Email</Text>
           <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Digite seu nome"
-            autoCapitalize="words"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="admin@admin.com"
+            autoCapitalize="none"
+            keyboardType="email-address"
             style={globalStyles.input}
           />
         </View>
@@ -66,9 +127,24 @@ export default function LoginScreen() {
             style={globalStyles.input}
           />
         </View>
-        <Button onPress={handleLogin}>Entrar</Button>
+        <Button
+          onPress={isRegister ? handleRegister : handleLogin}
+          disabled={submitting}
+        >
+          {submitting ? "Aguarde..." : isRegister ? "Cadastrar" : "Entrar"}
+        </Button>
+        <TouchableOpacity
+          onPress={() => {
+            resetForm();
+            setMode(isRegister ? "login" : "register");
+          }}
+        >
+          <Text style={styles.link}>
+            {isRegister ? "Já tenho cadastro" : "Criar cadastro"}
+          </Text>
+        </TouchableOpacity>
         <Text style={styles.note}>
-          Validação apenas local. O backend atual não usa autenticação.
+          Login acadêmico simples. Não usa token nem rotas protegidas.
         </Text>
       </View>
     </KeyboardAvoidingView>
@@ -99,6 +175,12 @@ const styles = StyleSheet.create({
     color: colors.secondaryText,
     fontSize: 12,
     lineHeight: 18,
+    textAlign: "center",
+  },
+  link: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: "800",
     textAlign: "center",
   },
 });

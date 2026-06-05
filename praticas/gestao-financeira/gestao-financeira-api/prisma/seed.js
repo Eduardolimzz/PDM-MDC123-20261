@@ -11,6 +11,16 @@ const defaultCategories = [
 ];
 
 async function main() {
+  await prisma.user.upsert({
+    where: { email: "admin@admin.com" },
+    update: {},
+    create: {
+      name: "Administrador",
+      email: "admin@admin.com",
+      password: "123456",
+    },
+  });
+
   for (const c of defaultCategories) {
     await prisma.category.upsert({
       where: { name: c.name },

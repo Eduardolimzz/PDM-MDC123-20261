@@ -1,9 +1,13 @@
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { api } from "../services/api";
 
 export const MoneyContext = createContext();
 
+const USER_STORAGE_KEY = "gestao-financeira:user";
+
 const stateCache = {
+  user: null,
   hydrated: false,
   categories: [],
   transactions: [],
@@ -25,6 +29,8 @@ const stateCache = {
  * @returns {JSX.Element} Provider com o objeto de contexto exposto via `MoneyContext`.
  */
 export default function GlobalState({ children }) {
+  const [user, setUser] = useState(stateCache.user);
+  const [authReady, setAuthReady] = useState(Boolean(stateCache.user));
   const [transactions, setTransactions] = useState(stateCache.transactions);
   const [categories, setCategories] = useState(stateCache.categories);
   const [loading, setLoading] = useState(false);
@@ -32,6 +38,55 @@ export default function GlobalState({ children }) {
   const [hydrated, setHydrated] = useState(stateCache.hydrated);
   const [error, setError] = useState(null);
   const hydratedRef = useRef(stateCache.hydrated);
+
+  const login = useCallback(async (data) => {
+    const authenticatedUser = await api.login(data);
+    stateCache.user = authenticatedUser;
+    await AsyncStorage.setItem(
+      USER_STORAGE_KEY,
+      JSON.stringify(authenticatedUser)
+    );
+    setUser(authenticatedUser);
+    return authenticatedUser;
+  }, []);
+
+  const register = useCallback(async (data) => {
+    return api.register(data);
+  }, []);
+
+  const logout = useCallback(async () => {
+    stateCache.user = null;
+    await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    setUser(null);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadStoredUser() {
+      try {
+        const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
+        if (!active) return;
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          stateCache.user = parsedUser;
+          setUser(parsedUser);
+        }
+      } finally {
+        if (active) setAuthReady(true);
+      }
+    }
+
+    if (stateCache.user) {
+      setAuthReady(true);
+    } else {
+      loadStoredUser();
+    }
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const syncFromCache = useCallback(() => {
     setCategories(stateCache.categories);
@@ -205,10 +260,15 @@ export default function GlobalState({ children }) {
       value={{
         transactions,
         categories,
+        user,
+        authReady,
         loading,
         refreshing,
         hydrated,
         error,
+        login,
+        register,
+        logout,
         refresh,
         addTransaction,
         updateTransaction,

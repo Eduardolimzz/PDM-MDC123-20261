@@ -36,6 +36,7 @@ export default function Transactions() {
   const {
     transactions,
     categories,
+    user,
     loading,
     refreshing,
     hydrated,
@@ -43,6 +44,7 @@ export default function Transactions() {
     refresh,
     updateTransaction,
     removeTransaction,
+    logout,
   } =
     useContext(MoneyContext);
   const [editing, setEditing] = useState(null);
@@ -146,6 +148,12 @@ export default function Transactions() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <View style={styles.header}>
+            <View style={styles.userRow}>
+              <Text style={styles.welcome}>Olá, {user?.name}!</Text>
+              <TouchableOpacity onPress={logout} style={styles.logoutButton}>
+                <Text style={styles.logoutText}>Sair</Text>
+              </TouchableOpacity>
+            </View>
             <Text style={globalStyles.screenTitle}>Transações</Text>
             <Text style={globalStyles.screenSubtitle}>
               Acompanhe receitas e despesas salvas no backend.
@@ -289,6 +297,28 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 12,
     gap: 4,
+  },
+  userRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  welcome: {
+    color: colors.primary,
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  logoutButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: colors.surfaceMuted,
+  },
+  logoutText: {
+    color: colors.primaryText,
+    fontSize: 13,
+    fontWeight: "800",
   },
   listContent: {
     paddingTop: 18,
