@@ -301,6 +301,27 @@ ou:
 npm run android
 ```
 
+### Observação sobre login do Expo
+
+Ao executar o app, o Expo pode exibir a mensagem:
+
+```text
+It is recommended to log in with your Expo account before proceeding.
+Learn more
+ › Log in
+   Proceed anonymously
+```
+Não é necessário fazer login em uma conta Expo para rodar este projeto localmente.
+
+Selecione:
+```
+Proceed anonymously
+```
+e pressione Enter.
+
+O app continuará rodando normalmente.
+
+---
 ## Fluxo Para O Professor Testar
 
 1. Subir o backend em `http://localhost:3000`.
